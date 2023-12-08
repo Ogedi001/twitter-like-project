@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Repost{
+  id String @unique @default(uuid())
+  repost Int
+  repostComments Comment  @relation(fields: [commentID], references: [id], onDelete: Cascade)
+  commentID String
+  repostPosts    Post   @relation(fields: [postID], references: [id], onDelete: Cascade)
+  postID  String
+}
+
+model Like{
+  id String @unique @default(uuid())
+  likes Int
+  likedComments Comment  @relation(fields: [commentID], references: [id], onDelete: Cascade)
+  commentID String
+  likedPosts    Post   @relation(fields: [postID], references: [id], onDelete: Cascade)
+  postID  String
+}
+
+model Comment {
+  id      String @unique @default(uuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  content String
+  post    Post   @relation(fields: [postID], references: [id], onDelete: Cascade)
+  postID  String
+  user    User   @relation(fields: [userID], references: [id], onDelete: Cascade)
+  userID  String
+  likedComments Like[]
+  repostComments Repost[]
+}
+
+model Post {
+  id        String    @id @unique @default(uuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  title     String    @db.VarChar(250)
+  content   String
+  user    User      @relation(fields: [userID], references: [id], onDelete: Cascade)
+  userID  String
+  comments  Comment[]
+  likedPosts Like[]
+  repostPosts Repost[]
+}
+
+model User {
+  id       String    @id @unique @default(uuid())
+  createdAt DateTime  @default(now())
+  username String    @unique
+  posts    Post[]
+  Comment  Comment[]
+}
+
+
