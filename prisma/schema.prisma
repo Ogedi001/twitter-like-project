@@ -10,56 +10,57 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Repost{
-  id String @unique @default(uuid())
-  repost Int
-  repostComments Comment  @relation(fields: [commentID], references: [id], onDelete: Cascade)
-  commentID String
-  repostPosts    Post   @relation(fields: [postID], references: [id], onDelete: Cascade)
-  postID  String
+model Repost {
+  id             String  @unique @default(uuid())
+  repost         Int
+  repostComments Comment @relation(fields: [commentID], references: [id], onDelete: Cascade)
+  commentID      String
+  repostPosts    Post    @relation(fields: [postID], references: [id], onDelete: Cascade)
+  postID         String
 }
 
-model Like{
-  id String @unique @default(uuid())
-  likes Int
-  likedComments Comment  @relation(fields: [commentID], references: [id], onDelete: Cascade)
-  commentID String
-  likedPosts    Post   @relation(fields: [postID], references: [id], onDelete: Cascade)
-  postID  String
+model Like {
+  id            String   @unique @default(uuid())
+  likes         Int
+  likedComments Comment? @relation(fields: [commentID], references: [id], onDelete: Cascade)
+  commentID     String?
+  likedPosts    Post     @relation(fields: [postID], references: [id], onDelete: Cascade)
+  postID        String
+  user          User     @relation(fields: [userID], references: [id], onDelete: Cascade)
+  userID        String
 }
 
 model Comment {
-  id      String @unique @default(uuid())
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  content String
-  post    Post   @relation(fields: [postID], references: [id], onDelete: Cascade)
-  postID  String
-  user    User   @relation(fields: [userID], references: [id], onDelete: Cascade)
-  userID  String
-  likedComments Like[]
+  id             String   @unique @default(uuid())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  content        String
+  post           Post     @relation(name: "PostComments", fields: [postID], references: [id], onDelete: Cascade)
+  postID         String
+  user           User     @relation(fields: [userID], references: [id], onDelete: Cascade)
+  userID         String
+  likedComments  Like[]
   repostComments Repost[]
 }
 
 model Post {
-  id        String    @id @unique @default(uuid())
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  title     String    @db.VarChar(250)
-  content   String
-  user    User      @relation(fields: [userID], references: [id], onDelete: Cascade)
-  userID  String
-  comments  Comment[]
-  likedPosts Like[]
+  id          String    @id @unique @default(uuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  title       String    @db.VarChar(250)
+  content     String
+  user        User      @relation(fields: [userID], references: [id], onDelete: Cascade)
+  userID      String
+  comments    Comment[] @relation(name: "PostComments")
+  likedPosts  Like[]
   repostPosts Repost[]
 }
 
 model User {
-  id       String    @id @unique @default(uuid())
+  id        String    @id @unique @default(uuid())
   createdAt DateTime  @default(now())
-  username String    @unique
-  posts    Post[]
-  Comment  Comment[]
+  username  String    @unique
+  posts     Post[]
+  Comment   Comment[]
+  likes     Like[]
 }
-
-
